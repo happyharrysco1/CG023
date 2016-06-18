@@ -116,8 +116,10 @@
 
 #define LEDS_ON CH_ON
 
+// +++++++++++++++++++++++++++++++++++++++++
 // 3d throttle - center off
 #define THREE_D_THROTTLE
+// +++++++++++++++++++++++++++++++++++++++++
 
 // aux1 channel starts on if this is defined, otherwise off.
 //#define AUX1_START_ON
