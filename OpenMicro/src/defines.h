@@ -74,13 +74,16 @@
 #define uint16 uint_fast16_t
 #define uint8 uint_fast8_t
 
+// +++++++++++++++++++++++++++++++++++
+#define BRIDGE_FORWARD 0
+#define BRIDGE_WAIT 1
+#define BRIDGE_REVERSE 5
 
+#define FORWARD DIR2
+#define REVERSE DIR1
 
-
-
-
-
-
-
-
-
+#define FREE 2
+#define BRAKE 3
+#define DIR1 1
+#define DIR2 0
+// +++++++++++++++++++++++++++++++++++
