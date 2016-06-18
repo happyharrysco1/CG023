@@ -120,6 +120,8 @@
 // 3d throttle - center off
 #define THREE_D_THROTTLE
 
+#define THREE_D_THROTTLE_DEADZONE 0.2
+
 // this make the controls mirrored in inverted mode
 #define NATIVE_INVERTED_MODE
 // +++++++++++++++++++++++++++++++++++++++++
