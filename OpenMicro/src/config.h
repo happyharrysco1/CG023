@@ -119,6 +119,9 @@
 // +++++++++++++++++++++++++++++++++++++++++
 // 3d throttle - center off
 #define THREE_D_THROTTLE
+
+// this make the controls mirrored in inverted mode
+#define NATIVE_INVERTED_MODE
 // +++++++++++++++++++++++++++++++++++++++++
 
 // aux1 channel starts on if this is defined, otherwise off.
