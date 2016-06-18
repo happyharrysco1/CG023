@@ -74,8 +74,23 @@ unsigned long timecommand = 0;
 extern int controls_override;
 extern float rx_override[];
 extern int acro_override;
+// +++++++++++++++++++++++++++++++++++++++++++++
+int currentdir;
+extern int pwmdir;
 
+void bridge_sequencer(int dir);
+// bridge 
+int stage;
+int laststage;
+int lastdir;
 
+// for 3d throttle
+#ifdef THREE_D_THROTTLE	
+int throttlesafe_3d = 0;
+#endif
+
+unsigned long bridgetime;
+//++++++++++++++++++++++++++++++++++++++++++++++
 void control( void)
 {	
 
@@ -235,6 +250,37 @@ float	throttle;
 if ( rx[3] < 0.1f ) throttle = 0;
 else throttle = (rx[3] - 0.1f)*1.11111111f;
 
+// +++++++++++++++++++++++++++++++++++++++++++++
+#ifdef THREE_D_THROTTLE	
+	// map throttle so under 10% it is zero 
+	float throttle = mapf(rx[3], 0, 1, -1, 1);
+
+limitf(&throttle, 1.0);
+	
+	if ( throttle > 0 )
+	{
+		bridge_sequencer(FORWARD);	// forward
+	}else 
+	{
+		bridge_sequencer(REVERSE);	// reverse
+	}
+	
+	if ( !throttlesafe_3d )
+	{
+		if (throttle > 0) 
+		{
+			throttlesafe_3d = 1;
+			ledcommand = 1;
+		}
+		throttle = 0;
+	}
+	
+  throttle = fabsf(throttle);
+
+	throttle = mapf (throttle , THREE_D_THROTTLE_DEADZONE , 1, 0 , 1); 	
+	if ( failsafe ) throttle = 0; 
+#endif	// end 3d throttle remap
+// ++++++++++++++++++++++++++++++++++++++++++++
 
 // turn motors off if throttle is off and pitch / roll sticks are centered
 	if ( failsafe || (throttle < 0.001f && (!ENABLESTIX||  (fabsf(rx[ROLL]) < 0.5f && fabsf(rx[PITCH]) < 0.5f ) ) ) ) 
@@ -313,8 +359,17 @@ pidoutput[2] = -pidoutput[2];
 // we invert again cause it's used by the pid internally (for limit)
 pidoutput[2] = -pidoutput[2];			
 #endif
-	
-				
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+		if (currentdir == REVERSE)
+		{
+			// inverted flight
+			//pidoutput[ROLL] = -pidoutput[ROLL];
+			pidoutput[PITCH] = -pidoutput[PITCH];
+			//pidoutput[YAW] = -pidoutput[YAW];		
+		}
+		
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++		
 
 thrsum = 0;		
 				
@@ -398,3 +453,61 @@ float clip_ff(float motorin, int number)
 }
 
 
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// the bridge sequencer creates a pause between motor direction changes
+// that way the motors do not try to instantly go in reverse and have time to slow down
+
+
+void bridge_sequencer(int dir)
+{
+
+	if (dir == DIR1 && stage != BRIDGE_FORWARD)
+	  {
+
+		  if (stage == BRIDGE_REVERSE)
+		    {
+			    stage = BRIDGE_WAIT;
+			    bridgetime = gettime();
+			    pwm_dir(FREE);
+		    }
+		  if (stage == BRIDGE_WAIT)
+		    {
+			    if (gettime() - bridgetime > BRIDGE_TIMEOUT)
+			      {
+				      // timeout has elapsed
+				      stage = BRIDGE_FORWARD;
+				      pwm_dir(DIR1);
+
+			      }
+
+		    }
+
+	  }
+	if (dir == DIR2 && stage != BRIDGE_REVERSE)
+	  {
+
+		  if (stage == BRIDGE_FORWARD)
+		    {
+			    stage = BRIDGE_WAIT;
+			    bridgetime = gettime();
+			    pwm_dir(FREE);
+		    }
+		  if (stage == BRIDGE_WAIT)
+		    {
+			    if (gettime() - bridgetime > BRIDGE_TIMEOUT)
+			      {
+				      // timeout has elapsed
+				      stage = BRIDGE_REVERSE;
+				      pwm_dir(DIR2);
+
+			      }
+
+		    }
+
+	  }
+
+
+
+
+}
+// +++++++++++++++++++++++++++++++++++++++++++++
