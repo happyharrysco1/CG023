@@ -360,17 +360,6 @@ pidoutput[2] = -pidoutput[2];
 pidoutput[2] = -pidoutput[2];			
 #endif
 
-// +++++++++++++++++++++++++++++++++++++++++++++++++++++++
-		if (currentdir == REVERSE)
-		{
-			// inverted flight
-			//pidoutput[ROLL] = -pidoutput[ROLL];
-			pidoutput[PITCH] = -pidoutput[PITCH];
-			//pidoutput[YAW] = -pidoutput[YAW];		
-		}
-		
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++		
-
 thrsum = 0;		
 				
 		for ( int i = 0 ; i <= 3 ; i++)
@@ -510,5 +499,79 @@ void bridge_sequencer(int dir)
 
 
 }
+
+// pwmdir controls hardware directly so we make a copy here
+	currentdir = pwmdir;
+
+	
+	if (aux[RATES])
+	  {
+		  ratemulti = HIRATEMULTI;
+		  ratemultiyaw = HIRATEMULTIYAW;
+		  maxangle = MAX_ANGLE_HI;
+		  anglerate = LEVEL_MAX_RATE_HI;
+	  }
+	else
+	  {
+		  ratemulti = 1.0f;
+		  ratemultiyaw = 1.0f;
+		  maxangle = MAX_ANGLE_LO;
+		  anglerate = LEVEL_MAX_RATE_LO;
+	  }
+
+
+	for (int i = 0; i < 3; i++)
+	  {
+		  rxcopy[i] = rx[i];
+	  }
+
+
+if (currentdir == REVERSE)
+		{	
+		#ifndef NATIVE_INVERTED_MODE
+		// invert pitch in reverse mode 
+		//rxtemp[ROLL] = - rx[ROLL];
+		rxcopy[PITCH] = - rx[PITCH];
+		rxcopy[YAW]	= - rx[YAW];	
+		#endif		
+		}
+		
+	if (auxchange[HEADLESSMODE])
+	  {
+		  yawangle = 0;
+	  }
+
+	if ((aux[HEADLESSMODE]) && !aux[LEVELMODE])
+	  {
+
+		  yawangle = yawangle + gyro[2] * looptime;
+
+		  float temp = rxcopy[0];
+		  rxcopy[0] = rxcopy[0] * cosf(yawangle) - rxcopy[1] * sinf(yawangle);
+		  rxcopy[1] = rxcopy[1] * cosf(yawangle) + temp * sinf(yawangle);
+	  }
+	else
+	  {
+		  yawangle = 0;
+	  }
+	  
+float attitudecopy[2];
+		
+if (currentdir == REVERSE)
+		{	
+		// account for 180 deg wrap since inverted attitude is near 180
+		if ( attitude[0] > 0) attitudecopy[0] = attitude[0] - 180;
+		else attitudecopy[0] = attitude[0] + 180;		
+			
+		if ( attitude[1] > 0) attitudecopy[1] = attitude[1] - 180;
+		else attitudecopy[1] = attitude[1] + 180;		
+		}
+		else
+		{
+			// normal thrust mode
+			attitudecopy[0] = attitude[0];
+			attitudecopy[1] = attitude[1];
+		}
+		
 
 // +++++++++++++++++++++++++++++++++++++++++++++
