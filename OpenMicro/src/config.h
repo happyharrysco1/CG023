@@ -6,8 +6,8 @@
 
 // rate in deg/sec
 // for acro mode
-#define MAX_RATE 360.0
-#define MAX_RATEYAW 360.0
+#define MAX_RATE 180.0
+#define MAX_RATEYAW 180.0
 
 // max angle for level mode
 #define MAX_ANGLE_HI 55.0f
@@ -38,11 +38,11 @@
 
 // under this voltage the software will not start 
 // if STOP_LOWBATTERY is defined above
-#define STOP_LOWBATTERY_TRESH 3.3
+#define STOP_LOWBATTERY_TRESH 3.2
 
 // voltage too start warning
 // volts
-#define VBATTLOW 3.5
+#define VBATTLOW 3.2
 
 // compensation for battery voltage vs throttle drop
 // increase if battery low comes on at max throttle
@@ -110,9 +110,9 @@
 // CH_OFF - off always ( all protocols)
 #define HEADLESSMODE CH_OFF
 
-#define LEVELMODE CH_AUX1
+#define LEVELMODE CH_FLIP
 
-#define STARTFLIP CH_FLIP
+#define STARTFLIP CH_OFF
 
 #define LEDS_ON CH_ON
 
@@ -166,8 +166,8 @@
 //#define RX_CG023_SWAP_YAWROLL
 
 // Flash saving features
-//#define DISABLE_HEADLESS
-//#define DISABLE_FLIP_SEQUENCER
+#define DISABLE_HEADLESS
+#define DISABLE_FLIP_SEQUENCER
 
 
 
@@ -187,7 +187,10 @@
 // debug / other things
 // this should not be usually changed
 
-
+// +++++++++++++++++++++++++++++++++++++++++++++
+// time to change motor direction (uS)
+#define BRIDGE_TIMEOUT 100000
+// +++++++++++++++++++++++++++++++++++++++++++++
 
 // level mode "manual" trims ( in degrees)
 // pitch positive forward
@@ -246,19 +249,3 @@
  #warning "MOTOR BEEPS_WORKS WITH BRUSHED MOTORS ONLY"
 #endif
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
